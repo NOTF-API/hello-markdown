@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- <script crossorigin="anonymous" integrity="sha512-XdUZ5nrNkVySQBnnM5vzDqHai823Spoq1W3pJoQwomQja+o4Nw0Ew1ppxo5bhF2vMug6sfibhKWcNJsG8Vj9tg==" src="https://lib.baomitu.com/vue/2.6.14/vue.min.js"></script> -->
+    <script crossorigin="anonymous"
+        integrity="sha512-pSyYzOKCLD2xoGM1GwkeHbdXgMRVsSqQaaUoHskx/HF09POwvow2VfVEdARIYwdeFLbu+2FCOTRYuiyeGxXkEg=="
+        src="https://lib.baomitu.com/vue/2.6.14/vue.js"></script>
+</head>
+
+<body>
+    <noscript>本应用无法在禁用JavaScript的情况下运行,请取消禁用JavaScript</noscript>
+    <div id="app" v-cloak>
+        <div class="header">
+            <img src="assets/logo.png" class="logo">
+            <span class="logo-text">NOTF-API</span>
+        </div>
+        <div class="row">
+            <div class="article-list">
+                <div class="title">文章列表</div>
+                <ul class="cards">
+                    <li v-for="(item,index) in page.currentArchives" :key="index" class="card" @click="openArchive(item)">
+                        <h1>{{item.title}}</h1>
+                        <h2>{{item.URI}}</h2>
+                    </li>
+                </ul>
+                <div class="pages">
+                    <button @click="previousPage" :class="page.currentPage===1?'disabled':''" :disabled="page.currentPage===1">
+                        上一页
+                    </button>
+                    <div class="page-info">
+                        {{page.currentPage}}/{{page.maxPage}}
+                    </div>
+                    <button @click="nextPage" :class="page.currentPage===page.maxPage?'disabled':''" :disabled="page.currentPage===page.maxPage">
+                        下一页
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="row">
+            <div class="app-list">
+                <div class="title">Web应用列表</div>
+                <ul class="cards">
+                    <li v-for="(item,index) in apps" :key="index" class="card" @click="openApp(item)">
+                        <h1>{{item.title}}</h1>
+                    </li>
+                </ul>
+            </div>
+        </div> -->
+        <div v-if="archive.isShow" class="archive-mask" @key.down.esc="handleArchiveClose">
+            <div class="archive">
+                <div class="archive-header">
+                    <h1 class="archive-title">{{archive.title}}</h1>
+                    <button class="archive-close" @click="closeArchive">×</button>
+                </div>
+                <div class="archive-loading" v-if="archive.isLoading">Loading......</div>
+                <div class="archive-error" v-else-if="archive.error">
+                    <img src="" class="error-img">
+                    <p class="error-status">{{archive.error.status}}</p>
+                    <p class="error-info">{{archive.error.statusText.toUpperCase()}}</p>
+                    <p class="error-description">Sorry, there is an error in the web address you visited</p>
+                </div>
+                <div v-else class="archive-display">
+                    <div v-for="(item,index) in archive.nodes" :class="item.style">
+                        
+                        <img v-if="item.type==='img'" :src="item.src" :alt="item.alt">
+                        <a v-else-if="item.type==='link'" :href="item.href">{{item.linkText}}</a>
+                        {{item.text}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="links">
+            <a href="https://github.com/NOTF-API">
+                <svg class="icon" style="width: 1em;height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1979"><path d="M512 0C229.283787 0 0.142041 234.942803 0.142041 524.867683c0 231.829001 146.647305 428.553077 350.068189 497.952484 25.592898 4.819996 34.976961-11.38884 34.976961-25.294314 0-12.45521-0.469203-45.470049-0.725133-89.276559-142.381822 31.735193-172.453477-70.380469-172.453477-70.380469-23.246882-60.569859-56.816233-76.693384-56.816234-76.693385-46.493765-32.58829 3.540351-31.948468 3.540351-31.948467 51.356415 3.71097 78.356923 54.086324 78.356923 54.086324 45.683323 80.19108 119.817417 57.072162 148.993321 43.593236 4.649376-33.91059 17.915029-57.029508 32.50298-70.167195-113.675122-13.222997-233.151301-58.223843-233.1513-259.341366 0-57.285437 19.919806-104.163095 52.678715-140.846248-5.246544-13.265652-22.820334-66.626844 4.990615-138.884127 0 0 42.996069-14.076094 140.760939 53.787741 40.863327-11.644769 84.627183-17.445825 128.177764-17.6591 43.465272 0.213274 87.271782 6.014331 128.135109 17.6591 97.679561-67.906489 140.59032-53.787741 140.59032-53.787741 27.938914 72.257282 10.407779 125.618474 5.118579 138.884127 32.844219 36.683154 52.593405 83.560812 52.593405 140.846248 0 201.586726-119.646798 245.990404-233.663158 258.957473 18.341577 16.208835 34.721032 48.199958 34.721032 97.210357 0 70.167195-0.639822 126.7275-0.639823 143.960051 0 14.033439 9.213443 30.370239 35.190235 25.209005 203.250265-69.527373 349.769606-266.123484 349.769605-497.867175C1023.857959 234.942803 794.673558 0 512 0" fill="#666666" p-id="1980"></path></svg>
+            </a>
+            <a href="https://space.bilibili.com/6454285">
+                <svg class="icon" style="width: 1em;height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1129 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1535"><path d="M234.909 9.656a80.468 80.468 0 0 1 68.398 0 167.374 167.374 0 0 1 41.843 30.578l160.937 140.82h115.07l160.936-140.82a168.983 168.983 0 0 1 41.843-30.578A80.468 80.468 0 0 1 930.96 76.445a80.468 80.468 0 0 1-17.703 53.914 449.818 449.818 0 0 1-35.406 32.187 232.553 232.553 0 0 1-22.531 18.508h100.585a170.593 170.593 0 0 1 118.289 53.109 171.397 171.397 0 0 1 53.914 118.288v462.693a325.897 325.897 0 0 1-4.024 70.007 178.64 178.64 0 0 1-80.468 112.656 173.007 173.007 0 0 1-92.539 25.75h-738.7a341.186 341.186 0 0 1-72.421-4.024A177.835 177.835 0 0 1 28.91 939.065a172.202 172.202 0 0 1-27.36-92.539V388.662a360.498 360.498 0 0 1 0-66.789A177.03 177.03 0 0 1 162.487 178.64h105.414c-16.899-12.07-31.383-26.555-46.672-39.43a80.468 80.468 0 0 1-25.75-65.984 80.468 80.468 0 0 1 39.43-63.57M216.4 321.873a80.468 80.468 0 0 0-63.57 57.937 108.632 108.632 0 0 0 0 30.578v380.615a80.468 80.468 0 0 0 55.523 80.469 106.218 106.218 0 0 0 34.601 5.632h654.208a80.468 80.468 0 0 0 76.444-47.476 112.656 112.656 0 0 0 8.047-53.109v-354.06a135.187 135.187 0 0 0 0-38.625 80.468 80.468 0 0 0-52.304-54.719 129.554 129.554 0 0 0-49.89-7.242H254.22a268.764 268.764 0 0 0-37.82 0z m0 0" fill="#20B0E3" p-id="1536"></path><path d="M348.369 447.404a80.468 80.468 0 0 1 55.523 18.507 80.468 80.468 0 0 1 28.164 59.547v80.468a80.468 80.468 0 0 1-16.094 51.5 80.468 80.468 0 0 1-131.968-9.656 104.609 104.609 0 0 1-10.46-54.719v-80.468a80.468 80.468 0 0 1 70.007-67.593z m416.02 0a80.468 80.468 0 0 1 86.102 75.64v80.468a94.148 94.148 0 0 1-12.07 53.11 80.468 80.468 0 0 1-132.773 0 95.757 95.757 0 0 1-12.875-57.133V519.02a80.468 80.468 0 0 1 70.007-70.812z m0 0" fill="#20B0E3" p-id="1537"></path></svg> 
+            </a>
+        </footer>
+    </div>
+    <script src="javascript/index.js"></script>
+</body>
+
+</html>
